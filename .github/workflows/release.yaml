@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - '*'
+  pull_request:
+    branches:
+    - '*'
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        job:
+          - { target: aarch64-unknown-linux-gnu   , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-apple-darwin         , os: macos-latest                   }
+          - { target: x86_64-unknown-linux-gnu    , os: ubuntu-latest, use-cross: true }
+    runs-on: ${{matrix.job.os}}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        target: ${{ matrix.job.target }}
+        toolchain: stable
+        override: true
+    - name: Build
+      uses: actions-rs/cargo@v1
+      with:
+        use-cross: ${{ matrix.job.use-cross }}
+        command: build
+        args: --locked --release --target=${{ matrix.job.target }}
