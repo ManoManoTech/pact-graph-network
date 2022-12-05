@@ -44,7 +44,6 @@ jobs:
         echo ::set-output name=BINARY_PATH::"${BINARY_PATH}"
     - name: Publish archives and packages
       uses: softprops/action-gh-release@v1
-      if: steps.is-release.outputs.IS_RELEASE
       with:
         files: |
           ${{ steps.dist.outputs.BINARY_PATH}}
