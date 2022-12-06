@@ -1,3 +1,6 @@
+// Copyright 2022 ManoMano Colibri SAS.
+// SPDX-License-Identifier: MIT
+
 use std::{
     fs::{self},
     io::{self},
