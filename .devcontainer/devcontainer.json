@@ -16,7 +16,9 @@
 				"eamodio.gitlens",
 				"mhutchie.git-graph",
 				"bungcip.better-toml",
-				"yzhang.markdown-all-in-one"
+				"yzhang.markdown-all-in-one",
+				"hbenl.vscode-test-explorer",
+				"Swellaby.vscode-rust-test-adapter"
 			]
 		}
 	}
