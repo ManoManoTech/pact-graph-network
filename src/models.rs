@@ -1,18 +1,32 @@
+// Copyright 2022 ManoMano Colibri SAS.
+// SPDX-License-Identifier: MIT
+
 use crate::client::dto::{Pact, PactsResponse};
 use std::convert::From;
 
 #[derive(Debug)]
-pub struct Contract {
-    pub consumer: String,
-    pub provider: String,
+pub struct Contract(String, String);
+
+impl Contract {
+    /// Creates a new [`Contract`].
+    pub fn new(consumer: String, provider: String) -> Self {
+        Self(consumer, provider)
+    }
+
+    /// Returns a reference to the consumer of this [`Contract`].
+    pub fn consumer(&self) -> &str {
+        self.0.as_ref()
+    }
+
+    /// Returns a reference to the provider of this [`Contract`].
+    pub fn provider(&self) -> &str {
+        self.1.as_ref()
+    }
 }
 
 impl From<Pact> for Contract {
     fn from(pact: Pact) -> Self {
-        Self {
-            consumer: pact.embedded.consumer.name,
-            provider: pact.embedded.provider.name,
-        }
+        Self(pact.embedded.consumer.name, pact.embedded.provider.name)
     }
 }
 
@@ -25,5 +39,17 @@ impl From<PactsResponse> for Contracts {
             contracts.push(Contract::from(pact))
         }
         contracts
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Contract;
+
+    #[test]
+    fn create_contract() {
+        let contract = Contract::new("foo".to_owned(), "bar".to_owned());
+        assert_eq!(String::from("foo"), contract.consumer());
+        assert_eq!(String::from("bar"), contract.provider());
     }
 }
