@@ -41,7 +41,7 @@ impl BrockerService {
 
     pub fn write(&self, contracts: &Contracts, output: &Path) -> Result<(), Error> {
         let items = create_services(contracts);
-        self.writer.write(items, output)?;
+        self.writer.write(&items, output)?;
 
         Ok(())
     }
@@ -54,16 +54,18 @@ fn create_services(contracts: &[Contract]) -> Vec<Item> {
         let provider = services
             .entry(contract.provider().to_owned())
             .or_insert_with(|| {
+                let item = Item::new(id, contract.provider().to_owned());
                 id += 1;
-                Item::new(id, contract.provider().to_owned())
+                item
             })
             .clone();
 
         let consumer = services
             .entry(contract.consumer().to_owned())
             .or_insert_with(|| {
+                let item = Item::new(id, contract.consumer().to_owned());
                 id += 1;
-                Item::new(id, contract.consumer().to_owned())
+                item
             });
 
         let mut updated_consumer = consumer.clone();

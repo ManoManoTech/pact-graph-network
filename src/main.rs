@@ -17,8 +17,8 @@ mod client;
 mod models;
 mod reporter;
 
-#[derive(Debug, Clone, clap::ValueEnum)]
-enum GraphChoice {
+#[derive(Debug, Clone, clap::ValueEnum, Copy)]
+pub enum GraphChoice {
     Edge,
     Directed,
 }
@@ -30,7 +30,7 @@ struct Cli {
     #[arg(short, long)]
     url: String,
     /// Path of the output dir
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "report")]
     output: String,
     // #[clap(short, long, parse(from_occurrences))]
     // verbosity: usize,
@@ -44,10 +44,14 @@ impl Cli {
         let output = Path::new(&self.output);
         info!("Output: {}", output.display());
 
-        reporter::write_report(output).expect("Could not generate the report");
+        reporter::write_report(output, self.graph).expect("Could not generate the report");
 
-        let grapher = chart::EdgeChart::default();
-        let bs = BrockerService::new(self.url, Box::new(grapher))?;
+        let grapher: Box<dyn chart::Writer> = match self.graph {
+            GraphChoice::Edge => Box::new(chart::EdgeChart::default()),
+            GraphChoice::Directed => Box::new(chart::ForceDirectedChart::default()),
+        };
+
+        let bs = BrockerService::new(self.url, grapher)?;
         let contracts = bs.load_contract().await?;
         bs.write(&contracts, output)?;
         Ok(())

@@ -3,29 +3,51 @@
 
 use std::{
     fs::{self},
-    io::{self},
     path::Path,
 };
 
+use handlebars::Handlebars;
 use rust_embed::RustEmbed;
+use serde::Serialize;
 
-pub fn write_report(output: &Path) -> Result<(), io::Error> {
-    if output.exists() {
-        fs::remove_dir_all(output)?;
-    }
-    fs::create_dir_all(output)?;
-    let report = Templates::get("report.html").expect("Could not load the report template");
-    let html_path = output.join("report.html");
-    fs::write(html_path, &report.data)?;
-
-    let graph =
-        Templates::get("edge-bundling.vg.json").expect("Could not load the report template");
-    let graph_path = output.join("edge-bundling.vg.json");
-    fs::write(graph_path, &graph.data)?;
-
-    Ok(())
-}
+use crate::GraphChoice;
 
 #[derive(RustEmbed)]
 #[folder = "templates/"]
 struct Templates;
+
+#[derive(Debug, Serialize)]
+struct SpecData {}
+
+#[derive(Debug, Serialize)]
+struct Data {
+    spec_data: String,
+}
+
+pub fn write_report(output: &Path, graph: GraphChoice) -> Result<(), Box<dyn std::error::Error>> {
+    if !output.exists() {
+        fs::create_dir_all(output)?;
+    }
+
+    let mut hbs = Handlebars::new();
+    hbs.register_embed_templates::<Templates>()?;
+
+    let file_name = match graph {
+        GraphChoice::Edge => "edge-bundling.html",
+        GraphChoice::Directed => "force-directed.html",
+    };
+
+    let spec_template = match graph {
+        GraphChoice::Edge => "edge-bundling.vg.json",
+        GraphChoice::Directed => "force-directed.vg.json",
+    };
+
+    let data = Data {
+        spec_data: hbs.render(spec_template, &SpecData {})?,
+    };
+
+    let html_contents = hbs.render("report.html", &data)?;
+    fs::write(output.join(file_name), html_contents)?;
+
+    Ok(())
+}

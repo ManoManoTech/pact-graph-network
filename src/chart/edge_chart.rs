@@ -28,10 +28,10 @@ impl From<&Item> for Leaf {
 pub struct EdgeChart;
 
 impl super::Writer for EdgeChart {
-    fn write(&self, items: Vec<super::Item>, output: &Path) -> Result<(), Error> {
-        let graph = self.create_graph_data(&items);
+    fn write(&self, items: &[Item], output: &Path) -> Result<(), Error> {
+        let graph = self.create_graph_data(items);
         self.write_graph_data(&graph, output)?;
-        let deps = self.create_dependencies(&items);
+        let deps = self.create_dependencies(items);
         self.write_dependancies(&deps, output)?;
 
         Ok(())
