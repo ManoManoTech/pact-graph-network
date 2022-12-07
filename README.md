@@ -21,7 +21,10 @@ Generates a schema of dependencies between microservices using pact-broker data.
 
 ## Screenshots
 
-![Report Screenshot](docs/demo.png)
+<div>
+  <img src="docs/edge-bundling.png" width="280" />
+  <img src="docs/force-directed.png" width="280" />
+</div>
 
 ## Tech Stack
 
@@ -34,7 +37,7 @@ This project is created with:
 
 - [x] generate an html report
 - [x] generate an edge bundling chart
-- [ ] generate a force directed layout chart
+- [x] generate a force directed layout chart
 
 ## How to install
 
