@@ -9,10 +9,7 @@
     <script type="text/javascript">
         var view;
 
-        fetch('./edge-bundling.vg.json')
-            .then(res => res.json())
-            .then(spec => render(spec))
-            .catch(err => console.error(err));
+        const spec = {{{ spec_data }}}
 
         function render(spec) {
             view = new vega.View(vega.parse(spec), {
@@ -22,6 +19,8 @@
             });
             return view.runAsync();
         }
+
+        render(spec)
     </script>
 </body>
 
