@@ -1,23 +1,135 @@
-name: Release
+name: CICD
 
 on:
-  push:
-    tags:
+  pull_request:
+    branches:
     - '*'
+  push:
+    branches:
+    - main
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        lfs: true
+    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+    - id: get_previous_version
+      run: |
+        PREVIOUS_VERSION=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+        echo "PREVIOUS_VERSION=${PREVIOUS_VERSION}" >> $GITHUB_OUTPUT
+      shell: bash
+    - id: semvers
+      uses: WyriHaximus/github-action-next-semvers@master
+      with:
+        version: '${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}'
+    - run: mkdir -p ./version
+    - if: "!contains(github.event.head_commit.message, 'BC BREAK') && !contains(github.event.head_commit.message, 'Signed-off-by: dependabot-preview[bot] <support@dependabot.com>')"
+      run: echo "$VERSION" >./version/version
+      env:
+        VERSION: ${{ steps.semvers.outputs.v_minor }}
+    - if: "contains(github.event.head_commit.message, 'Signed-off-by: dependabot-preview[bot] <support@dependabot.com>')"
+      run: echo "$VERSION" >./version/version
+      env:
+        VERSION: ${{ steps.semvers.outputs.v_patch }}
+    - if: "contains(github.event.head_commit.message, 'BC BREAK')"
+      run: echo "$VERSION" > ./version/version
+      env:
+        VERSION: ${{ steps.semvers.outputs.v_major }}
+    - uses: actions/upload-artifact@master
+      with:
+        name: version
+        path: ./version/version
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust Toolchain Components
+        uses: actions-rs/toolchain@v1
+        with:
+          components: clippy, rustfmt
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v1
+      - name: check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+  lints:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust Toolchain Components
+        uses: actions-rs/toolchain@v1
+        with:
+          components: clippy, rustfmt
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v1
+      - name: Clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all --all-targets -- -D warnings
+      - name: Format
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+  tests:
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+    runs-on: ${{matrix.os}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust Toolchain Components
+        uses: actions-rs/toolchain@v1
+        with:
+          components: clippy, rustfmt
+          override: true
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v1
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: "--all"
+      - name: Show help
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: "-- -h"
   build:
+    needs:
+      - version
+      - tests
+      - lints
+      - check
     strategy:
       matrix:
         job:
-          - { target: x86_64-apple-darwin      , suffix: "x86_64-darwin"  , os: macos-latest                   }
-          - { target: x86_64-unknown-linux-gnu , suffix: "x86_64-linux"    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-apple-darwin      , suffix: ""  , os: macos-latest                   }
+          - { target: x86_64-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
     runs-on: ${{matrix.job.os}}
-    permissions:
-      contents: write
-      discussions: write
     steps:
     - uses: actions/checkout@v3
+    - id: get_repository_name
+      run: |
+        REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
+        echo "REPOSITORY_NAME=${REPOSITORY_NAME}" >> $GITHUB_OUTPUT
+      shell: bash
+    - uses: actions/download-artifact@master
+      with:
+        name: version
+    - id: get_version
+      run: |
+        VERSION=$(cat ./version)
+        echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+      shell: bash
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
       with:
@@ -25,30 +137,96 @@ jobs:
         target: ${{ matrix.job.target }}
         toolchain: stable
         override: true
+    - uses: actions-rs/cargo@v1
+      with:
+        command: install
+        args: 'toml-cli'
+    - name: "Bump version into cargo.toml"
+      shell: bash
+      env:
+        VERSION: '${{ steps.get_version.outputs.VERSION }}'
+      run: |
+        TEMP_FILE="$(mktemp)"
+        toml set Cargo.toml package.version "${VERSION:1}" > "$TEMP_FILE"
+        mv "$TEMP_FILE" Cargo.toml
     - name: Build
       uses: actions-rs/cargo@v1
+      env:
+          VERSION: '${{ steps.get_version.outputs.VERSION }}'
+          REPOSITORY_NAME: '${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}'
       with:
         use-cross: ${{ matrix.job.use-cross }}
         command: build
-        args: --bin pact-graph-network --locked --release --target=${{ matrix.job.target }}
+        args: --bin pact-graph-network${{ matrix.job.suffix }} --locked --release --target=${{ matrix.job.target }}
     - name: Create dist
       id: dist
       shell: bash
       run: |
-        EXECUTABLE="target/${{ matrix.job.target }}/release/pact-graph-network"
-        BINARY_NAME="pact-graph-network_${{ matrix.job.suffix }}"
+        EXECUTABLE="target/${{ matrix.job.target }}/release/pact-graph-network${{ matrix.job.suffix }}"
+        BINARY_NAME="pact-graph-network_${{ matrix.job.target }}${{ matrix.job.suffix }}"
         BINARY_PATH="dist/${BINARY_NAME}"
         mkdir -p "dist/"
-
         # Binary
         cp "${EXECUTABLE}" "${BINARY_PATH}"
-
-        echo ::set-output name=BINARY_NAME::"${BINARY_NAME}"
-        echo ::set-output name=BINARY_PATH::"${BINARY_PATH}"
-    - name: Publish archives and packages
-      uses: softprops/action-gh-release@v1
+        echo "BINARY_NAME=${BINARY_NAME}" >> $GITHUB_OUTPUT
+        echo "BINARY_PATH=${BINARY_PATH}" >> $GITHUB_OUTPUT
+    - uses: actions/upload-artifact@master
       with:
-        files: |
-          ${{ steps.dist.outputs.BINARY_PATH}}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-${{ matrix.job.target }}
+        path: dist/
+
+  release:
+    if: github.ref == 'refs/heads/master'
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: write
+    steps:
+      - uses: actions/checkout@v3
+      - id: get_repository_name
+        run: |
+          REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
+          echo "REPOSITORY_NAME=${REPOSITORY_NAME}" >> $GITHUB_OUTPUT
+        shell: bash
+      - uses: actions/download-artifact@master
+        with:
+          name: version
+      - id: get_version
+        run: |
+          VERSION=$(cat ./version)
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+        shell: bash
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-unknown-linux-gnu
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-apple-darwin
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: 'toml-cli'
+      - run: |
+          TEMP_FILE="$(mktemp)"
+          toml set Cargo.toml package.version "${VERSION:1}" > "$TEMP_FILE"
+          mv "$TEMP_FILE" Cargo.toml
+        shell: bash
+        env:
+          VERSION: '${{ steps.get_version.outputs.VERSION }}'
+      - uses: stefanzweifel/git-auto-commit-action@v4.1.3
+        with:
+          commit_message: Bump cargo version
+          branch: ${{ github.head_ref }}
+          file_pattern: Cargo.toml
+      - name: Publish archives and packages
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: '${{ steps.get_version.outputs.VERSION }}'
+          name: 'Release ${{ steps.get_version.outputs.VERSION }}'
+          generate_release_notes: true
+          files: |
+            dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

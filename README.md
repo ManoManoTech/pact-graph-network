@@ -1,7 +1,7 @@
 
 # Pact graph network
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![build status](https://github.com/ManoManoTech/pact-graph-network/workflows/CI/badge.svg)](https://github.com/ManoManoTech/pact-graph-network/actions)
+[![build status](https://github.com/ManoManoTech/pact-graph-network/workflows/CICD/badge.svg)](https://github.com/ManoManoTech/pact-graph-network/actions)
 [![rust](https://img.shields.io/badge/rust-FA7343?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 
 
