@@ -41,8 +41,20 @@ This project is created with:
 
 ## How to install
 
-> ⚠️ Todo
-> download the binary
+```bash
+# Download the binary
+VERSION=0.1.0-alpha.2
+curl -L -o /usr/local/bin/pact-graph-network \
+  https://github.com/ManoManoTech/pact-graph-network/releases/download/v${VERSION}/pact-graph-network_x86_64-darwin
+
+# Make it executable
+chmod a+x /usr/local/bin/pact-graph-network
+
+# And run it
+pact-graph-network \
+  --url http://your.pact.broker \
+  --output ./report
+```
 
 ## Usage
 
