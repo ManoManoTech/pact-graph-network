@@ -19,7 +19,9 @@
 				"yzhang.markdown-all-in-one",
 				"hbenl.vscode-test-explorer",
 				"Swellaby.vscode-rust-test-adapter",
-				"skellock.just"
+				"skellock.just",
+				"rangav.vscode-thunder-client",
+				"ItsMeAdarsh.vsc-handlebars-ext"
 			]
 		}
 	}

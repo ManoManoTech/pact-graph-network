@@ -1,16 +1,17 @@
 // Copyright 2022 ManoMano Colibri SAS.
 // SPDX-License-Identifier: MIT
 
-mod dependancy;
+mod dataset;
 mod edge_chart;
 mod force_directed;
-mod item;
+use anyhow::Result;
 
 pub use edge_chart::EdgeChart;
 pub use force_directed::ForceDirectedChart;
-pub use item::Item;
-use std::{fmt::Error, path::Path};
+use std::path::Path;
+
+use crate::client::dto;
 
 pub trait Writer {
-    fn write(&self, items: &[Item], output: &Path) -> Result<(), Error>;
+    fn write(&self, items: &[dto::InteractionsResponse], output: &Path) -> Result<()>;
 }
