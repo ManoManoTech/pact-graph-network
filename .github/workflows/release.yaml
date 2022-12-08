@@ -227,6 +227,6 @@ jobs:
           name: 'Release ${{ steps.get_version.outputs.VERSION }}'
           generate_release_notes: true
           files: |
-            dist/*
+            pact-graph-network*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
