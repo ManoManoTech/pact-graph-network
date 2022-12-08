@@ -1,4 +1,6 @@
-pub mod pact;
+pub mod interactions;
+pub mod pacts;
 
-pub use pact::Pact;
-pub use pact::PactsResponse;
+pub use interactions::InteractionsResponse;
+pub use pacts::Pact;
+pub use pacts::PactsResponse;
