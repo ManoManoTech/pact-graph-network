@@ -112,6 +112,7 @@ jobs:
         job:
           - { target: x86_64-apple-darwin      , suffix: ""  , os: macos-latest                   }
           - { target: x86_64-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-linux-musl , suffix: ""    , os: ubuntu-latest, use-cross: true }
     runs-on: ${{matrix.job.os}}
     steps:
     - uses: actions/checkout@v3
@@ -202,6 +203,9 @@ jobs:
       - uses: actions/download-artifact@master
         with:
           name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-apple-darwin
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-unknown-linux-musl
       - uses: actions-rs/cargo@v1
         with:
           command: install
