@@ -157,7 +157,7 @@ jobs:
       with:
         use-cross: ${{ matrix.job.use-cross }}
         command: build
-        args: --bin pact-graph-network${{ matrix.job.suffix }} --locked --release --target=${{ matrix.job.target }}
+        args: --bin pact-graph-network${{ matrix.job.suffix }} --release --target=${{ matrix.job.target }}
     - name: Create dist
       id: dist
       shell: bash
