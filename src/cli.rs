@@ -2,10 +2,36 @@ use std::path::Path;
 
 use crate::{broker_service::BrockerService, chart, reporter, GraphChoice};
 use clap::Parser;
+use lazy_static::lazy_static;
 use log::info;
 
+lazy_static! {
+    static ref VERSION: &'static str =
+        option_env!("VERGEN_GIT_SEMVER_LIGHTWEIGHT").unwrap_or(env!("VERGEN_BUILD_SEMVER"));
+    static ref LONG_VERSION: String = format!(
+        "
+Build Timestamp:     {}
+Build Version:       {}
+Commit SHA:          {:?}
+Commit Date:         {:?}
+Commit Branch:       {:?}
+",
+        env!("VERGEN_BUILD_TIMESTAMP"),
+        env!("VERGEN_BUILD_SEMVER"),
+        option_env!("VERGEN_GIT_SHA"),
+        option_env!("VERGEN_GIT_COMMIT_TIMESTAMP"),
+        option_env!("VERGEN_GIT_BRANCH")
+    );
+}
+
 #[derive(Debug, Parser)]
-#[command(author, version, about, long_about)]
+#[command(
+    author,
+    version(*VERSION),
+    long_version(LONG_VERSION.as_str()),
+    about,
+    long_about,
+)]
 pub struct Cli {
     /// Pact broker URL
     #[arg(short, long)]
