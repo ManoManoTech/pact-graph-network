@@ -16,6 +16,7 @@ categories = ["command-line-utilities", "development-tools"]
 description = """
 Generates a schema of dependencies between microservices using pact-broker data
 """
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -25,9 +26,20 @@ clap = { version = "4.0.29", features = ["cargo", "derive"] }
 env_logger = "0.10.0"
 futures = "0.3.25"
 handlebars = { version = "4.3.5", features = ["rust-embed"] }
+lazy_static = "1.4.0"
 log = "0.4.17"
-reqwest = { version = "0.11.13", features = ["json", "rustls-tls"], default-features = false }
+reqwest = { version = "0.11.13", features = [
+    "json",
+    "rustls-tls",
+], default-features = false }
 rust-embed = "6.4.2"
 serde = { version = "1.0.148", features = ["derive"] }
 serde_json = "1.0.89"
 tokio = { version = "1.22.0", features = ["full"] }
+
+[build-dependencies]
+anyhow = "1.0.66"
+vergen = { version = "7.4.3", default-features = false, features = [
+    "build",
+    "rustc",
+] }
