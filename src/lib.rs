@@ -1,14 +1,14 @@
-use std::{path::Path, time::Duration};
-
-use anyhow::Result;
-
 mod chart;
 mod cli;
 mod client;
 mod reporter;
+mod utils;
+
+use anyhow::Result;
 pub use cli::{Cli, GraphChoice};
 use client::Client;
 use log::info;
+use std::{path::Path, time::Duration};
 
 pub async fn run(args: Cli) -> Result<()> {
     info!("Base URL: {}", args.url);
