@@ -10,7 +10,7 @@ use handlebars::Handlebars;
 use rust_embed::RustEmbed;
 use serde::Serialize;
 
-use crate::GraphChoice;
+use crate::{utils, GraphChoice};
 
 #[derive(RustEmbed)]
 #[folder = "templates/"]
@@ -47,7 +47,7 @@ pub fn write_report(output: &Path, graph: GraphChoice) -> Result<(), Box<dyn std
     };
 
     let html_contents = hbs.render("report.html", &data)?;
-    fs::write(output.join(file_name), html_contents)?;
+    utils::fs::write(output.join(file_name), html_contents)?;
 
     Ok(())
 }
