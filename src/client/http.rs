@@ -1,4 +1,4 @@
-use std::sync::mpsc;
+use std::{sync::mpsc, time::Duration};
 
 use anyhow::Result;
 use futures::{stream, StreamExt};
@@ -18,10 +18,11 @@ pub struct Client {
 
 impl Client {
     /// Create a new instance of Broker API service
-    pub fn new(url: String) -> Result<Self, Error> {
+    pub fn new(url: String, timeout: Duration) -> Result<Self, Error> {
         let base_url = Url::parse(url.as_str()).expect("Could not parse the base url");
         let client = reqwest::Client::builder()
             .user_agent("pactgrapher")
+            .timeout(timeout)
             .build()?;
 
         Ok(Self {
