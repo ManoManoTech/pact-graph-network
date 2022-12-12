@@ -2,15 +2,19 @@
 // SPDX-License-Identifier: MIT
 
 use std::{
-    fs::{self},
+    fs::{self as stdFs},
     path::Path,
 };
 
+use crate::GraphChoice;
 use handlebars::Handlebars;
+#[cfg(test)]
+use mockall_double::double;
 use rust_embed::RustEmbed;
 use serde::Serialize;
 
-use crate::{utils, GraphChoice};
+#[cfg_attr(test, double)]
+use crate::utils::fs;
 
 #[derive(RustEmbed)]
 #[folder = "templates/"]
@@ -26,7 +30,7 @@ struct Data {
 
 pub fn write_report(output: &Path, graph: GraphChoice) -> Result<(), Box<dyn std::error::Error>> {
     if !output.exists() {
-        fs::create_dir_all(output)?;
+        stdFs::create_dir_all(output)?;
     }
 
     let mut hbs = Handlebars::new();
@@ -47,7 +51,48 @@ pub fn write_report(output: &Path, graph: GraphChoice) -> Result<(), Box<dyn std
     };
 
     let html_contents = hbs.render("report.html", &data)?;
-    utils::fs::write(output.join(file_name), html_contents)?;
+    fs::write(output.join(file_name), html_contents)?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use mockall::predicate;
+
+    use super::write_report;
+    use crate::{utils, GraphChoice};
+    use std::path::{Path, PathBuf};
+
+    #[test]
+    fn write_edge_report() {
+        let output = Path::new("/tmp/foo");
+
+        let mock = utils::mock_fs::write_context();
+        mock.expect::<PathBuf, String>()
+            .with(
+                predicate::function(move |x: &PathBuf| x.eq(&output.join("edge-bundling.html"))),
+                predicate::always(),
+            )
+            .return_once(|_, _| Ok(()));
+
+        let result =  write_report(output, GraphChoice::Edge);
+        assert!(result.is_ok())
+    }
+
+    #[test]
+    fn write_force_directed_report() {
+        let output = Path::new("/tmp/foo");
+
+        let mock = utils::mock_fs::write_context();
+        mock.expect::<PathBuf, String>()
+            .with(
+                predicate::function(move |x: &PathBuf| x.eq(&output.join("force-directed.html"))),
+                predicate::always(),
+            )
+            .return_once(|_, _| Ok(()));
+
+        let result = write_report(output, GraphChoice::Directed);
+        assert!(result.is_ok())
+    }
 }
