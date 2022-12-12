@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 use anyhow::Result;
 
@@ -14,6 +14,7 @@ pub async fn run(args: Cli) -> Result<()> {
     info!("Base URL: {}", args.url);
     let output = Path::new(&args.output);
     info!("Output: {}", output.display());
+    let timeout = Duration::from_millis(args.timeout as u64);
 
     reporter::write_report(output, args.graph).expect("Could not generate the report");
 
@@ -21,7 +22,8 @@ pub async fn run(args: Cli) -> Result<()> {
         GraphChoice::Edge => Box::new(chart::EdgeChart::default()),
         GraphChoice::Directed => Box::new(chart::ForceDirectedChart::default()),
     };
-    let api = Client::new(args.url).expect("Could not initialize the client");
+
+    let api = Client::new(args.url, timeout).expect("Could not initialize the client");
     let data = api
         .pacts()
         .await

@@ -45,4 +45,7 @@ pub struct Cli {
     // verbosity: usize,
     #[arg(short, long, value_enum, default_value = "edge")]
     pub graph: GraphChoice,
+    /// timeout of http request in milliseconds
+    #[arg(long, default_value = "2000")]
+    pub timeout: u16,
 }
