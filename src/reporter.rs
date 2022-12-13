@@ -21,14 +21,15 @@ use crate::utils::fs;
 struct Templates;
 
 #[derive(Debug, Serialize)]
-struct SpecData {}
-
-#[derive(Debug, Serialize)]
 struct Data {
-    spec_data: String,
+    json_data: String,
 }
 
-pub fn write_report(output: &Path, graph: GraphChoice) -> Result<(), Box<dyn std::error::Error>> {
+pub fn write_report(
+    output: &Path,
+    graph: GraphChoice,
+    data: String,
+) -> Result<(), Box<dyn std::error::Error>> {
     if !output.exists() {
         stdFs::create_dir_all(output)?;
     }
@@ -36,22 +37,18 @@ pub fn write_report(output: &Path, graph: GraphChoice) -> Result<(), Box<dyn std
     let mut hbs = Handlebars::new();
     hbs.register_embed_templates::<Templates>()?;
 
-    let file_name = match graph {
-        GraphChoice::Edge => "edge-bundling.html",
-        GraphChoice::Directed => "force-directed.html",
+    let template = match graph {
+        GraphChoice::Edge => "edge-bundling.hbs",
+        GraphChoice::Directed => "force-directed.hbs",
     };
 
-    let spec_template = match graph {
-        GraphChoice::Edge => "edge-bundling.vg.json",
-        GraphChoice::Directed => "force-directed.vg.json",
-    };
+    let data = Data { json_data: data };
 
-    let data = Data {
-        spec_data: hbs.render(spec_template, &SpecData {})?,
-    };
-
-    let html_contents = hbs.render("report.html", &data)?;
-    fs::write(output.join(file_name), html_contents)?;
+    let html_contents = hbs.render(template, &data)?;
+    fs::write(
+        output.join(template.replace(".hbs", ".html")),
+        html_contents,
+    )?;
 
     Ok(())
 }
@@ -76,7 +73,7 @@ mod tests {
             )
             .return_once(|_, _| Ok(()));
 
-        let result =  write_report(output, GraphChoice::Edge);
+        let result = write_report(output, GraphChoice::Edge, "fake".to_owned());
         assert!(result.is_ok())
     }
 
@@ -92,7 +89,7 @@ mod tests {
             )
             .return_once(|_, _| Ok(()));
 
-        let result = write_report(output, GraphChoice::Directed);
+        let result = write_report(output, GraphChoice::Directed, "fake".to_owned());
         assert!(result.is_ok())
     }
 }
