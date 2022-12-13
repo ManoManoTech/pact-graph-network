@@ -44,8 +44,8 @@ impl Link {
     }
 }
 
-impl From<&[dto::InteractionsResponse]> for Graph {
-    fn from(responses: &[dto::InteractionsResponse]) -> Self {
+impl From<&Vec<dto::InteractionsResponse>> for Graph {
+    fn from(responses: &Vec<dto::InteractionsResponse>) -> Self {
         let mut pacticant = HashMap::<&str, Node>::new();
         let mut links: Vec<Link> = vec![];
 
