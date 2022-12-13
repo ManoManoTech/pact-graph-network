@@ -1,7 +1,3 @@
-#[cfg(test)]
-use mockall::automock;
-
-#[cfg_attr(test, automock)]
 pub mod fs {
     use std::{fs as stdFs, io, path::Path};
 

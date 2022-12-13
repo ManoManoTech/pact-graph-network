@@ -6,15 +6,11 @@ use std::{
     path::Path,
 };
 
+use crate::utils::fs;
 use crate::GraphChoice;
 use handlebars::Handlebars;
-#[cfg(test)]
-use mockall_double::double;
 use rust_embed::RustEmbed;
 use serde::Serialize;
-
-#[cfg_attr(test, double)]
-use crate::utils::fs;
 
 #[derive(RustEmbed)]
 #[folder = "templates/"]
@@ -51,45 +47,4 @@ pub fn write_report(
     )?;
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use mockall::predicate;
-
-    use super::write_report;
-    use crate::{utils, GraphChoice};
-    use std::path::{Path, PathBuf};
-
-    #[test]
-    fn write_edge_report() {
-        let output = Path::new("/tmp/foo");
-
-        let mock = utils::mock_fs::write_context();
-        mock.expect::<PathBuf, String>()
-            .with(
-                predicate::function(move |x: &PathBuf| x.eq(&output.join("edge-bundling.html"))),
-                predicate::always(),
-            )
-            .return_once(|_, _| Ok(()));
-
-        let result = write_report(output, GraphChoice::Edge, "fake".to_owned());
-        assert!(result.is_ok())
-    }
-
-    #[test]
-    fn write_force_directed_report() {
-        let output = Path::new("/tmp/foo");
-
-        let mock = utils::mock_fs::write_context();
-        mock.expect::<PathBuf, String>()
-            .with(
-                predicate::function(move |x: &PathBuf| x.eq(&output.join("force-directed.html"))),
-                predicate::always(),
-            )
-            .return_once(|_, _| Ok(()));
-
-        let result = write_report(output, GraphChoice::Directed, "fake".to_owned());
-        assert!(result.is_ok())
-    }
 }
