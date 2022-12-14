@@ -1,6 +1,6 @@
 [package]
 name = "pact-graph-network"
-version = "0.7.1"
+version = "0.7.2"
 authors = ["Guillaume CAMUS <guillaume.camus@gmail.com>"]
 license = "MIT"
 keywords = [
