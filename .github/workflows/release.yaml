@@ -243,7 +243,7 @@ jobs:
           tag_name: 'v${{ needs.version.outputs.version }}'
           name: 'Release v${{ needs.version.outputs.version }}'
           generate_release_notes: false
-          body: "${{ needs.changelog.outputs.content }}"
+          body: "${{ needs.changelog.outputs.release_body }}"
           files: |
             pact-graph-network*
         env:
