@@ -86,6 +86,42 @@ jobs:
         with:
           command: run
           args: "-- -h"
+  changelog:
+    if: needs.version.outputs.hasNextVersion == 'true'
+    needs:
+      - version
+    name: Generate changelog
+    runs-on: ubuntu-latest
+    outputs:
+      content: ${{steps.git-cliff.outputs.content}}
+      release_body: ${{ steps.git-cliff-changes.outputs.content }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - run: git tag "v${{needs.version.outputs.version}}"
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v1
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --verbose
+        env:
+          OUTPUT: CHANGELOG.md
+      - name: Print the changelog
+        run: echo "${{ steps.git-cliff.outputs.content }}"
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v1
+        id: git-cliff-changes
+        with:
+          config: cliff.toml
+          args: -vv --latest --strip header
+        env:
+          OUTPUT: CHANGES.md
+      - name: Print the changelog
+        run: echo "${{ steps.git-cliff-changes.outputs.content }}"
   build:
     if: needs.version.outputs.hasNextVersion == 'true'
     needs:
@@ -159,6 +195,7 @@ jobs:
       needs.version.outputs.hasNextVersion == 'true'
     needs:
       - version
+      - changelog
       - build
     runs-on: ubuntu-latest
     permissions:
@@ -195,17 +232,19 @@ jobs:
         with:
           command: run
           args: '-- --help'
+      - run: echo "${{ needs.changelog.outputs.content }}" > CHANGELOG.md
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Bump cargo version
           branch: ${{ github.head_ref }}
-          file_pattern: 'Cargo.*'
+          file_pattern: 'Cargo.* CHANGELOG.md'
       - name: Publish archives and packages
         uses: softprops/action-gh-release@v1
         with:
           tag_name: 'v${{ needs.version.outputs.version }}'
           name: 'Release v${{ needs.version.outputs.version }}'
-          generate_release_notes: true
+          generate_release_notes: false
+          body: "${{ needs.changelog.outputs.content }}"
           files: |
             pact-graph-network*
         env:
