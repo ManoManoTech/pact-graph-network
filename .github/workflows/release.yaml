@@ -42,7 +42,7 @@ jobs:
       - name: check
         uses: actions-rs/cargo@v1
         with:
-          command: fmt
+          command: check
   lints:
     name: "💅 lints"
     runs-on: ubuntu-latest
@@ -226,10 +226,15 @@ jobs:
           version: latest
       - name: "Bump version into cargo.toml"
         run: cargo bump ${{ needs.version.outputs.version }}
-      - run: echo "${{ needs.changelog.outputs.content }}" > CHANGELOG.md
+      - name: check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+      - name: "Write changelog"
+        run: echo "${{ needs.changelog.outputs.content }}" > CHANGELOG.md
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Bump cargo version
+          commit_message: "chore(release): prepare for v${{ needs.version.outputs.version }}"
           branch: ${{ github.head_ref }}
           file_pattern: 'Cargo.* CHANGELOG.md'
       - name: Publish archives and packages
