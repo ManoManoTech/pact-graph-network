@@ -40,7 +40,7 @@ This project is created with:
 - [x] generate an html report
 - [x] generate an edge bundling chart
 - [x] generate a force directed layout chart
-- [ ] exclude sevices with pattern
+- [x] exclude sevices with pattern
 - [ ] filter only services
 - [ ] add support fort Pact Broker authentification
 
