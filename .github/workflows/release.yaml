@@ -11,37 +11,22 @@ on:
 jobs:
   version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_next_version.outputs.version }}
+      hasNextVersion: ${{ steps.get_next_version.outputs.hasNextVersion }}
     steps:
     - uses: actions/checkout@v3
       with:
         lfs: true
-    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-    - id: get_previous_version
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Get next version
+      id: get_next_version
+      uses: thenativeweb/get-next-version@main
+    - name: print
       run: |
-        PREVIOUS_VERSION=$(git describe --tags "$(git rev-list --tags --max-count=1)")
-        echo "PREVIOUS_VERSION=${PREVIOUS_VERSION}" >> $GITHUB_OUTPUT
-      shell: bash
-    - id: semvers
-      uses: WyriHaximus/github-action-next-semvers@master
-      with:
-        version: '${{ steps.get_previous_version.outputs.PREVIOUS_VERSION }}'
-    - run: mkdir -p ./version
-    - if: "!contains(github.event.head_commit.message, 'BC BREAK') && !contains(github.event.head_commit.message, 'Signed-off-by: dependabot-preview[bot] <support@dependabot.com>')"
-      run: echo "$VERSION" >./version/version
-      env:
-        VERSION: ${{ steps.semvers.outputs.v_minor }}
-    - if: "contains(github.event.head_commit.message, 'Signed-off-by: dependabot-preview[bot] <support@dependabot.com>')"
-      run: echo "$VERSION" >./version/version
-      env:
-        VERSION: ${{ steps.semvers.outputs.v_patch }}
-    - if: "contains(github.event.head_commit.message, 'BC BREAK')"
-      run: echo "$VERSION" > ./version/version
-      env:
-        VERSION: ${{ steps.semvers.outputs.v_major }}
-    - uses: actions/upload-artifact@master
-      with:
-        name: version
-        path: ./version/version
+        echo "version: ${{ steps.get_next_version.outputs.version }}"
+        echo "has_next_version: ${{ steps.get_next_version.outputs.hasNextVersion }}"
   check:
     runs-on: ubuntu-latest
     steps:
@@ -102,6 +87,7 @@ jobs:
           command: run
           args: "-- -h"
   build:
+    if: needs.version.outputs.hasNextVersion == 'true'
     needs:
       - version
       - tests
@@ -116,18 +102,14 @@ jobs:
     runs-on: ${{matrix.job.os}}
     steps:
     - uses: actions/checkout@v3
+      with:
+          lfs: true
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
     - id: get_repository_name
       run: |
         REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
         echo "REPOSITORY_NAME=${REPOSITORY_NAME}" >> $GITHUB_OUTPUT
-      shell: bash
-    - uses: actions/download-artifact@master
-      with:
-        name: version
-    - id: get_version
-      run: |
-        VERSION=$(cat ./version)
-        echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
       shell: bash
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
@@ -143,16 +125,13 @@ jobs:
     - name: "Bump version into cargo.toml"
       shell: bash
       env:
-        VERSION: '${{ steps.get_version.outputs.VERSION }}'
+        VERSION: '${{ needs.version.outputs.version }}'
       run: |
         TEMP_FILE="$(mktemp)"
         toml set Cargo.toml package.version "${VERSION:1}" > "$TEMP_FILE"
         mv "$TEMP_FILE" Cargo.toml
     - name: Build
       uses: actions-rs/cargo@v1
-      env:
-          VERSION: '${{ steps.get_version.outputs.VERSION }}'
-          REPOSITORY_NAME: '${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}'
       with:
         use-cross: ${{ matrix.job.use-cross }}
         command: build
@@ -175,8 +154,11 @@ jobs:
         path: dist/
 
   release:
-    if: github.ref == 'refs/heads/main'
+    if: |
+      github.ref == 'refs/heads/main' &&
+      needs.version.outputs.hasNextVersion == 'true'
     needs:
+      - version
       - build
     runs-on: ubuntu-latest
     permissions:
@@ -188,14 +170,6 @@ jobs:
         run: |
           REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
           echo "REPOSITORY_NAME=${REPOSITORY_NAME}" >> $GITHUB_OUTPUT
-        shell: bash
-      - uses: actions/download-artifact@master
-        with:
-          name: version
-      - id: get_version
-        run: |
-          VERSION=$(cat ./version)
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
         shell: bash
       - uses: actions/download-artifact@master
         with:
@@ -216,7 +190,7 @@ jobs:
           mv "$TEMP_FILE" Cargo.toml
         shell: bash
         env:
-          VERSION: '${{ steps.get_version.outputs.VERSION }}'
+          VERSION: '${{ needs.version.outputs.version }}'
       - uses: actions-rs/cargo@v1
         with:
           command: run
@@ -229,8 +203,8 @@ jobs:
       - name: Publish archives and packages
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: '${{ steps.get_version.outputs.VERSION }}'
-          name: 'Release ${{ steps.get_version.outputs.VERSION }}'
+          tag_name: 'v${{ needs.version.outputs.version }}'
+          name: 'Release v${{ needs.version.outputs.version }}'
           generate_release_notes: true
           files: |
             pact-graph-network*
