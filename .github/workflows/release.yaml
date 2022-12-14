@@ -147,7 +147,8 @@ jobs:
           lfs: true
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-    - id: get_repository_name
+    - name: "Get Repository name"
+      id: get_repository_name
       run: |
         REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
         echo "REPOSITORY_NAME=${REPOSITORY_NAME}" >> $GITHUB_OUTPUT
@@ -159,18 +160,13 @@ jobs:
         target: ${{ matrix.job.target }}
         toolchain: stable
         override: true
-    - uses: actions-rs/cargo@v1
+    - uses: Swatinem/rust-cache@v1
+    - uses: actions-rs/install@v0.1
       with:
-        command: install
-        args: 'toml-cli'
+        crate: cargo-bump
+        version: latest
     - name: "Bump version into cargo.toml"
-      shell: bash
-      env:
-        VERSION: '${{ needs.version.outputs.version }}'
-      run: |
-        TEMP_FILE="$(mktemp)"
-        toml set Cargo.toml package.version "${VERSION:1}" > "$TEMP_FILE"
-        mv "$TEMP_FILE" Cargo.toml
+      run: cargo bump ${{ needs.version.outputs.version }}
     - name: Build
       uses: actions-rs/cargo@v1
       with:
@@ -223,21 +219,13 @@ jobs:
       - uses: actions/download-artifact@master
         with:
           name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-unknown-linux-musl
-      - uses: actions-rs/cargo@v1
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions-rs/install@v0.1
         with:
-          command: install
-          args: 'toml-cli'
-      - run: |
-          TEMP_FILE="$(mktemp)"
-          toml set Cargo.toml package.version "${VERSION:1}" > "$TEMP_FILE"
-          mv "$TEMP_FILE" Cargo.toml
-        shell: bash
-        env:
-          VERSION: '${{ needs.version.outputs.version }}'
-      - uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: '-- --help'
+          crate: cargo-bump
+          version: latest
+      - name: "Bump version into cargo.toml"
+        run: cargo bump ${{ needs.version.outputs.version }}
       - run: echo "${{ needs.changelog.outputs.content }}" > CHANGELOG.md
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
