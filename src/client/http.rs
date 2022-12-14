@@ -32,7 +32,7 @@ impl Client {
     }
 
     /// Gets a list of contracts
-    pub async fn pacts(&self) -> Result<Vec<InteractionsResponse>> {
+    pub async fn pacts(&self, excludes: Option<Vec<String>>) -> Result<Vec<InteractionsResponse>> {
         info!("Fetch list of contracts");
         let url = self
             .url
@@ -47,7 +47,7 @@ impl Client {
             .json::<PactsResponse>()
             .await?;
 
-        let urls = contracts_url_from(&pacts_response);
+        let urls = contracts_url_from(&pacts_response, excludes);
 
         let contracts = self.load_interactions(urls).await?;
 
@@ -76,9 +76,10 @@ impl Client {
                 async move {
                     match contract {
                         Ok(contract) => {
-                            debug!(
+                            trace!(
                                 "contract loaded between {} and {}",
-                                contract.consumer.name, contract.provider.name
+                                contract.consumer.name,
+                                contract.provider.name
                             );
                             if let Err(e) = sender.send(contract) {
                                 error!("Could not send contrat to channel: {}", e)
@@ -106,18 +107,40 @@ impl Client {
     }
 }
 
-fn contracts_url_from(pacts_response: &PactsResponse) -> Vec<Url> {
+fn contracts_url_from(pacts_response: &PactsResponse, excludes: Option<Vec<String>>) -> Vec<Url> {
     let urls = pacts_response
         .pacts
         .iter()
         // .cloned()
-        .filter_map(|p| match p.links.links_self.first() {
-            Some(element) => match Url::parse(element.href.as_str()) {
-                Ok(link) => Some(link),
-                Err(_) => None,
-            },
-            None => None,
+        .filter_map(|p| {
+            if let Some(excludes) = &excludes {
+                if excludes
+                    .iter()
+                    .cloned()
+                    .any(|term| p.embedded.consumer.name.contains(&term))
+                {
+                    trace!("exclude consumer {}", p.embedded.consumer.name);
+                    return None;
+                }
+                if excludes
+                    .iter()
+                    .cloned()
+                    .any(|term| p.embedded.provider.name.contains(&term))
+                {
+                    trace!("exclude provider {}", p.embedded.provider.name);
+                    return None;
+                }
+            }
+
+            return match p.links.links_self.first() {
+                Some(element) => match Url::parse(element.href.as_str()) {
+                    Ok(link) => Some(link),
+                    Err(_) => None,
+                },
+                None => None,
+            };
         })
         .collect::<Vec<Url>>();
+
     urls
 }
