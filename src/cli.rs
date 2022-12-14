@@ -48,4 +48,7 @@ pub struct Cli {
     /// timeout of http request in milliseconds
     #[arg(long, default_value = "2000")]
     pub timeout: u16,
+    /// list of service to exclude
+    #[arg(long)]
+    pub exclude: Option<Vec<String>>,
 }
