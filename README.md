@@ -5,7 +5,9 @@
 [![rust](https://img.shields.io/badge/rust-FA7343?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 
 
-Generates a schema of dependencies between microservices using pact-broker data.
+A command line to generate dependency patterns between microservices using pact-broker data.
+
+Available for linux, alpine and OSX.
 
 
 # Table of contents
@@ -31,21 +33,24 @@ Generates a schema of dependencies between microservices using pact-broker data.
 This project is created with:
 
 - [rust](https://www.rust-lang.org/) 🦀
-- [vega](https://vega.github.io/vega/)
+- [D3js](https://d3js.org/)
 
 ## Features
 
 - [x] generate an html report
 - [x] generate an edge bundling chart
 - [x] generate a force directed layout chart
+- [ ] exclude sevices with pattern
+- [ ] filter only services
+- [ ] add support fort Pact Broker authentification
 
 ## How to install
 
 ```bash
 # Download the binary
-VERSION=0.1.0-alpha.2
+VERSION=0.6.0
 curl -L -o /usr/local/bin/pact-graph-network \
-  https://github.com/ManoManoTech/pact-graph-network/releases/download/v${VERSION}/pact-graph-network_x86_64-darwin
+  https://github.com/ManoManoTech/pact-graph-network/releases/download/v${VERSION}/pact-graph-network_x86_64-unknown-linux-gnu
 
 # Make it executable
 chmod a+x /usr/local/bin/pact-graph-network
