@@ -10,6 +10,7 @@ on:
 
 jobs:
   version:
+    name: "🧮 Compute the version"
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_next_version.outputs.version }}
@@ -28,6 +29,7 @@ jobs:
         echo "version: ${{ steps.get_next_version.outputs.version }}"
         echo "has_next_version: ${{ steps.get_next_version.outputs.hasNextVersion }}"
   check:
+    name: "🔍 checks"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -42,6 +44,7 @@ jobs:
         with:
           command: fmt
   lints:
+    name: "💅 lints"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,6 +65,7 @@ jobs:
           command: fmt
           args: --all -- --check
   tests:
+    name: "⚙️ Run unit-tests"
     strategy:
       matrix:
         os:
@@ -90,7 +94,7 @@ jobs:
     if: needs.version.outputs.hasNextVersion == 'true'
     needs:
       - version
-    name: Generate changelog
+    name: ✍️ Generate changelog
     runs-on: ubuntu-latest
     outputs:
       content: ${{steps.git-cliff.outputs.content}}
@@ -123,6 +127,7 @@ jobs:
       - name: Print the changelog
         run: echo "${{ steps.git-cliff-changes.outputs.content }}"
   build:
+    name: "🛠️ Build binaries"
     if: needs.version.outputs.hasNextVersion == 'true'
     needs:
       - version
@@ -190,6 +195,7 @@ jobs:
         path: dist/
 
   release:
+    name: "📦 Github release"
     if: |
       github.ref == 'refs/heads/main' &&
       needs.version.outputs.hasNextVersion == 'true'
