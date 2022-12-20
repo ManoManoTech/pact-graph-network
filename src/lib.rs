@@ -1,15 +1,17 @@
 mod chart;
 mod cli;
-mod client;
 mod reporter;
 mod utils;
 
 use anyhow::Result;
-use chart::dataset;
 pub use cli::{Cli, GraphChoice};
-use client::Client;
 use log::{debug, info};
+use pact_broker_api::client::Builder;
+use pact_broker_models::contract::Contract;
+use reqwest::Url;
 use std::{path::Path, time::Duration};
+
+use crate::chart::dataset;
 
 pub async fn run(args: Cli) -> Result<()> {
     info!("Base URL: {}", args.url);
@@ -19,11 +21,30 @@ pub async fn run(args: Cli) -> Result<()> {
 
     let timeout = Duration::from_millis(args.timeout as u64);
 
-    let api = Client::new(args.url, timeout).expect("Could not initialize the client");
-    let data = api
-        .pacts(args.exclude)
+    let api = Builder::new()
+        .base_url(args.url)
+        .unwrap()
+        .with_timeout(timeout)
+        .build()
+        .unwrap();
+
+    let urls: Vec<Url> = api
+        .pacts()
+        .latest()
         .await
-        .expect("Could not fetch latest pacts from broker.");
+        .unwrap()
+        .pacts
+        .iter()
+        .filter_map(|pact| match pact.links.links_self.first() {
+            Some(link) => match Url::parse(link.href.as_str()) {
+                Ok(link) => Some(link),
+                Err(_) => None,
+            },
+            None => None,
+        })
+        .collect();
+
+    let data = api.batch_get::<Contract>(urls, None).await.unwrap();
 
     let graph = dataset::Graph::from(&data);
     let json_data = serde_json::to_string(&graph)?;

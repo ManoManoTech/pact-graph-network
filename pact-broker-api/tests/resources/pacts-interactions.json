@@ -1,0 +1,168 @@
+{
+    "consumer": {
+        "name": "consumer_name"
+    },
+    "interactions": [
+        {
+            "_id": "805f87adfd18ade376289eed5ee3c8a4bfab0495",
+            "description": "A request to find by uuid",
+            "providerStates": [
+                {
+                    "name": "A profile with a uuid 5fa95f64-7517-4653-f3bc-2c963f66afa6 exists"
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "path": "/api/profiles",
+                "query": {
+                    "uuid": [
+                        "5fa95f64-7517-4653-f3bc-2c963f66afa6"
+                    ],
+                    "profile_type": [
+                        "customer"
+                    ]
+                }
+            },
+            "response": {
+                "body": {
+                    "content": {
+                        "email": "biloute@test.com",
+                        "uuid": "5fa95f64-7517-4653-f3bc-2c963f66afa6"
+                    }
+                },
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "matchingRules": {
+                    "body": {
+                        "$.content.email": {
+                            "combine": "AND",
+                            "matchers": [
+                                {
+                                    "match": "type"
+                                }
+                            ]
+                        },
+                        "$.content.uuid": {
+                            "combine": "AND",
+                            "matchers": [
+                                {
+                                    "match": "regex",
+                                    "regex": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "status": 200
+            }
+        }
+    ],
+    "metadata": {
+        "pact-jvm": {
+            "version": "4.3.16"
+        },
+        "pactSpecification": {
+            "version": "3.0.0"
+        }
+    },
+    "provider": {
+        "name": "provider_name"
+    },
+    "createdAt": "2022-12-16T16:55:50+00:00",
+    "_links": {
+        "self": {
+            "title": "Pact",
+            "name": "Pact between consumer_name (v0.15.5) and provider_name",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/version/v0.15.5"
+        },
+        "pb:consumer": {
+            "title": "Consumer",
+            "name": "consumer_name",
+            "href": "{{host}}/pacticipants/consumer_name"
+        },
+        "pb:consumer-version": {
+            "title": "Consumer version",
+            "name": "v0.15.5",
+            "href": "{{host}}/pacticipants/consumer_name/versions/v0.15.5"
+        },
+        "pb:provider": {
+            "title": "Provider",
+            "name": "provider_name",
+            "href": "{{host}}/pacticipants/provider_name"
+        },
+        "pb:pact-version": {
+            "title": "Pact content version permalink",
+            "name": "61b543ff0d0fd90e7e2e48813ac5d7aab0497921",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/pact-version/61b543ff0d0fd90e7e2e48813ac5d7aab0497921"
+        },
+        "pb:latest-pact-version": {
+            "title": "Latest version of this pact",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/latest"
+        },
+        "pb:all-pact-versions": {
+            "title": "All versions of this pact",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/versions"
+        },
+        "pb:latest-untagged-pact-version": {
+            "title": "Latest untagged version of this pact",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/latest-untagged"
+        },
+        "pb:latest-tagged-pact-version": {
+            "title": "Latest tagged version of this pact",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/latest/{tag}",
+            "templated": true
+        },
+        "pb:previous-distinct": {
+            "title": "Previous distinct version of this pact",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/version/v0.15.5/previous-distinct"
+        },
+        "pb:diff-previous-distinct": {
+            "title": "Diff with previous distinct version of this pact",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/version/v0.15.5/diff/previous-distinct"
+        },
+        "pb:diff": {
+            "title": "Diff with another specified version of this pact",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/pact-version/61b543ff0d0fd90e7e2e48813ac5d7aab0497921/diff/pact-version/{pactVersion}",
+            "templated": true
+        },
+        "pb:pact-webhooks": {
+            "title": "Webhooks for the pact between consumer_name and provider_name",
+            "href": "{{host}}/webhooks/provider/provider_name/consumer/consumer_name"
+        },
+        "pb:consumer-webhooks": {
+            "title": "Webhooks for all pacts with provider provider_name",
+            "href": "{{host}}/webhooks/consumer/provider_name"
+        },
+        "pb:tag-prod-version": {
+            "title": "PUT to this resource to tag this consumer version as 'production'",
+            "href": "{{host}}/pacticipants/consumer_name/versions/v0.15.5/tags/prod"
+        },
+        "pb:tag-version": {
+            "title": "PUT to this resource to tag this consumer version",
+            "href": "{{host}}/pacticipants/consumer_name/versions/v0.15.5/tags/{tag}"
+        },
+        "pb:publish-verification-results": {
+            "title": "Publish verification results",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/pact-version/61b543ff0d0fd90e7e2e48813ac5d7aab0497921/metadata/Y3Y9NDc5Nw/verification-results"
+        },
+        "pb:latest-verification-results": {
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/pact-version/61b543ff0d0fd90e7e2e48813ac5d7aab0497921/verification-results/latest"
+        },
+        "pb:triggered-webhooks": {
+            "title": "Webhooks triggered by the publication of this pact",
+            "href": "{{host}}/pacts/provider/provider_name/consumer/consumer_name/version/v0.15.5/triggered-webhooks"
+        },
+        "pb:matrix-for-consumer-version": {
+            "title": "View matrix rows for the consumer version to which this pact belongs",
+            "href": "{{host}}/matrix?q[][pacticipant]=consumer_name&q[][version]=v0.15.5&latestby=cvpv"
+        },
+        "curies": [
+            {
+                "name": "pb",
+                "href": "{{host}}/doc/{rel}?context=pact",
+                "templated": true
+            }
+        ]
+    }
+}

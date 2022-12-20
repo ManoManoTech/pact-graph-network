@@ -1,0 +1,124 @@
+{
+    "pacts": [
+        {
+            "createdAt": "2022-12-16T16:55:50+00:00",
+            "_embedded": {
+                "consumer": {
+                    "name": "ms.idx1",
+                    "_embedded": {
+                        "version": {
+                            "number": "v0.15.5",
+                            "_links": {
+                                "self": {
+                                    "title": "Version",
+                                    "name": "v0.15.5",
+                                    "href": "{{host}}/pacticipants/ms.idx1/versions/v0.15.5"
+                                }
+                            }
+                        }
+                    },
+                    "_links": {
+                        "self": {
+                            "href": "{{host}}/pacticipants/ms.idx1"
+                        }
+                    }
+                },
+                "provider": {
+                    "name": "ms.idx2",
+                    "_links": {
+                        "self": {
+                            "href": "{{host}}/pacticipants/ms.idx2"
+                        }
+                    }
+                }
+            },
+            "_links": {
+                "self": [
+                    {
+                        "href": "{{host}}/pacts/provider/ms.idx2/consumer/ms.idx1/latest"
+                    },
+                    {
+                        "href": "{{host}}/pacts/provider/ms.idx2/consumer/ms.idx1/version/v0.15.5"
+                    }
+                ]
+            }
+        },
+        {
+            "createdAt": "2022-12-21T16:14:50+00:00",
+            "_embedded": {
+                "consumer": {
+                    "name": "ms.idx2",
+                    "_embedded": {
+                        "version": {
+                            "number": "8b209f9b",
+                            "_links": {
+                                "self": {
+                                    "title": "Version",
+                                    "name": "8b209f9b",
+                                    "href": "{{host}}/pacticipants/ms.idx2/versions/8b209f9b"
+                                }
+                            }
+                        }
+                    },
+                    "_links": {
+                        "self": {
+                            "href": "{{host}}/pacticipants/ms.idx2"
+                        }
+                    }
+                },
+                "provider": {
+                    "name": "ms.idx3",
+                    "_links": {
+                        "self": {
+                            "href": "{{host}}/pacticipants/ms.idx3"
+                        }
+                    }
+                }
+            },
+            "_links": {
+                "self": [
+                    {
+                        "href": "{{host}}/pacts/provider/ms.idx3/consumer/ms.idx2/latest"
+                    },
+                    {
+                        "href": "{{host}}/pacts/provider/ms.idx3/consumer/ms.idx2/version/8b209f9b"
+                    }
+                ]
+            }
+        }
+    ],
+    "_links": {
+        "self": {
+            "href": "{{host}}/pacts/latest"
+        },
+        "pb:pacts": [
+            {
+                "href": "{{host}}/pacts/provider/ms.idx2/consumer/ms.idx1/latest",
+                "title": "Latest pact between ms.idx1 and ms.idx2"
+            },
+            {
+                "href": "{{host}}/pacts/provider/ms.idx3/consumer/ms.idx2/latest",
+                "title": "Latest pact between ms.idx2 and ms.idx3"
+            }
+        ],
+        "pacts": [
+            {
+                "href": "{{host}}/pacts/provider/ms.idx2/consumer/ms.idx1/latest",
+                "title": "Latest pact between ms.idx1 and ms.idx2",
+                "name": "DEPRECATED - please use the pb:pacts relation"
+            },
+            {
+                "href": "{{host}}/pacts/provider/ms.idx3/consumer/ms.idx2/latest",
+                "title": "Latest pact between ms.idx2 and ms.idx3",
+                "name": "DEPRECATED - please use the pb:pacts relation"
+            }
+        ],
+        "curies": [
+            {
+                "name": "pb",
+                "href": "{{host}}/doc/{rel}?context=pacts",
+                "templated": true
+            }
+        ]
+    }
+}
