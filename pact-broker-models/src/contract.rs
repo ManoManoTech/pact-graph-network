@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-extern crate serde_derive;
-
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct InteractionsResponse {
+pub struct Contract {
     pub consumer: Pacticant,
     pub interactions: Option<Vec<Interaction>>,
     pub metadata: Metadata,
@@ -25,9 +23,14 @@ pub struct Interaction {
     pub id: String,
     pub description: String,
     #[serde(rename = "providerStates")]
-    pub provider_states: Option<Vec<Pacticant>>,
+    pub provider_states: Option<Vec<State>>,
     pub request: Request,
     pub response: Response,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct State {
+    pub name: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

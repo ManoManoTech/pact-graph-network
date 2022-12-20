@@ -18,6 +18,9 @@ Generates a schema of dependencies between microservices using pact-broker data
 """
 build = "build.rs"
 
+[workspace]
+members = [".", "pact-broker-api", "pact-broker-models"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -29,6 +32,8 @@ futures = "0.3.25"
 handlebars = { version = "4.3.5", features = ["rust-embed"] }
 lazy_static = "1.4.0"
 log = "0.4.17"
+pact-broker-api = { version = "0.1.0", path = "pact-broker-api" }
+pact-broker-models = { version = "0.1.0", path = "pact-broker-models" }
 reqwest = { version = "0.11.13", features = [
     "json",
     "rustls-tls",

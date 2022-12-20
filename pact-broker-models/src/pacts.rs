@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-extern crate serde_derive;
-
 #[derive(Serialize, Deserialize, Debug)]
-pub struct PactsResponse {
+pub struct Pacts {
     pub pacts: Vec<Pact>,
     #[serde(rename = "_links")]
     pub links: ResponseLinks,

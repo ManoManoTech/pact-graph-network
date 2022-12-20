@@ -1,0 +1,102 @@
+{
+    // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
+    // Pointez pour afficher la description des attributs existants.
+    // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'pact-graph-network'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=pact-graph-network"
+                ],
+                "filter": {
+                    "name": "pact-graph-network",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'pact-graph-network'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=pact-graph-network",
+                    "--package=pact-graph-network"
+                ],
+                "filter": {
+                    "name": "pact-graph-network",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'pact-graph-network'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=pact-graph-network",
+                    "--package=pact-graph-network"
+                ],
+                "filter": {
+                    "name": "pact-graph-network",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'pact-broker-api'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=pact-broker-api"
+                ],
+                "filter": {
+                    "name": "pact-broker-api",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}/lib/pact-broker-api"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'client'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=client",
+                    "--package=pact-broker-api"
+                ],
+                "filter": {
+                    "name": "client",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}/lib/pact-broker-api"
+        }
+    ]
+}

@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
+use pact_broker_models::contract::Contract;
 use serde::Serialize;
 
 use log::warn;
-
-use crate::client::dto;
 
 #[derive(Debug, Serialize)]
 pub struct Graph {
@@ -44,8 +43,8 @@ impl Link {
     }
 }
 
-impl From<&Vec<dto::InteractionsResponse>> for Graph {
-    fn from(responses: &Vec<dto::InteractionsResponse>) -> Self {
+impl From<&Vec<Contract>> for Graph {
+    fn from(responses: &Vec<Contract>) -> Self {
         let mut pacticant = HashMap::<&str, Node>::new();
         let mut links: Vec<Link> = vec![];
 
