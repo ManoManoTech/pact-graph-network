@@ -58,13 +58,23 @@ chmod u+x $HOME/.local/bin/pact-graph-network
 
 ## Usage
 
-
-
 ~~~bash
   pact-graph-network \
   --url https://pact-brocker.your.com/ \
   --output report
 ~~~
+
+### Options 
+
+```
+-u, --url <URL>          Pact broker URL
+-o, --output <OUTPUT>    Path of the output dir [default: report]
+-g, --graph <GRAPH>      [default: edge] [possible values: edge, directed]
+    --timeout <TIMEOUT>  timeout of http request in milliseconds [default: 2000]
+    --exclude <EXCLUDE>  list of service to exclude
+-h, --help               Print help information
+-V, --version            Print version information
+```
 
 ## Environment Variables
 
