@@ -5,21 +5,34 @@
 [![rust](https://img.shields.io/badge/rust-FA7343?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 
 
-A command line to generate dependency patterns between microservices using pact-broker data.
+> A command line to generate dependency patterns between microservices using pact-broker data.
 
 Available for linux, alpine and OSX.
+
+## Broker APIs
+
+1. First, request `$PACT_BROKER_URL/pacts/latest` to get the list of all contracts (e.g. `pacts`) ;
+2. then, for each contract object get the URL to latest version of contract, _e.g._ `_links._self[0].href` 
+
+    > http://$PACT_BROKER_URL/pacts/provider/foo-provide/consumer/bar-consume/latest
+
+3. and use it to fetch contract details, i.e. all interactions ;
 
 
 # Table of contents
 
-- [Screenshots](#screenshots)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
-- [How to install](#how-to-install)
-- [Usage](#usage)
-- [Environment Variables](#environment-variables)
-- [Feedback](#feedback)
-- [License](#license)
+* [Pact graph network](#pact-graph-network)
+  * [Broker APIs](#broker-apis)
+* [Table of contents](#table-of-contents)
+  * [Screenshots](#screenshots)
+  * [Tech Stack](#tech-stack)
+  * [Features](#features)
+  * [How to install](#how-to-install)
+  * [Usage](#usage)
+    * [Options](#options)
+    * [Environment Variables](#environment-variables)
+  * [Feedback](#feedback)
+  * [License](#license)
 
 ## Screenshots
 
