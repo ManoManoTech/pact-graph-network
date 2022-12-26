@@ -48,7 +48,7 @@ This project is created with:
 
 ```bash
 # Download the binary
-VERSION=0.6.0
+VERSION=0.7.2
 curl -L -o /usr/local/bin/pact-graph-network \
   https://github.com/ManoManoTech/pact-graph-network/releases/download/v${VERSION}/pact-graph-network_x86_64-unknown-linux-gnu
 
