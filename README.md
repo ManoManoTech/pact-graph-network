@@ -76,12 +76,12 @@ chmod u+x $HOME/.local/bin/pact-graph-network
 -V, --version            Print version information
 ```
 
-## Environment Variables
+### Environment Variables
 
-| Key                        | Description                                   | Alowed values               |
-| -------------------------- | --------------------------------------------- | --------------------------- |
-| **PACT_NETWORK_LOG**       | Adds filters to the logger.                   | error,warn,info,debug,trace |
-| **PACT_NETWORK_LOG_STYLE** | Whether or not to print styles to the target. | auto, always, never         |
+| Key                          | Description                                   | Alowed values                         |
+| ---------------------------- | --------------------------------------------- | ------------------------------------- |
+| **`PACT_NETWORK_LOG`**       | Adds filters to the logger.                   | `error`,`warn`,`info`,`debug`,`trace` |
+| **`PACT_NETWORK_LOG_STYLE`** | Whether or not to print styles to the target. | `auto`, `always`, `never`             |
 
 
 ## Feedback
