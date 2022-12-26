@@ -54,11 +54,6 @@ curl -L -o $HOME/.local/bin/pact-graph-network \
 
 # Make it executable
 chmod u+x $HOME/.local/bin/pact-graph-network
-
-# And run it
-pact-graph-network \
-  --url http://your.pact.broker \
-  --output ./report
 ```
 
 ## Usage
@@ -66,7 +61,9 @@ pact-graph-network \
 
 
 ~~~bash
-  pact-graph-network --url https://pact-brocker.your.com/ --output report
+  pact-graph-network \
+  --url https://pact-brocker.your.com/ \
+  --output report
 ~~~
 
 ## Environment Variables
