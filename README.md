@@ -49,11 +49,11 @@ This project is created with:
 ```bash
 # Download the binary
 VERSION=0.7.2
-curl -L -o /usr/local/bin/pact-graph-network \
+curl -L -o $HOME/.local/bin/pact-graph-network \
   https://github.com/ManoManoTech/pact-graph-network/releases/download/v${VERSION}/pact-graph-network_x86_64-unknown-linux-gnu
 
 # Make it executable
-chmod a+x /usr/local/bin/pact-graph-network
+chmod u+x $HOME/.local/bin/pact-graph-network
 
 # And run it
 pact-graph-network \
