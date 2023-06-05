@@ -21,18 +21,21 @@ Available for linux, alpine and OSX.
 
 # Table of contents
 
-* [Pact graph network](#pact-graph-network)
-  * [Broker APIs](#broker-apis)
-* [Table of contents](#table-of-contents)
-  * [Screenshots](#screenshots)
-  * [Tech Stack](#tech-stack)
-  * [Features](#features)
-  * [How to install](#how-to-install)
-  * [Usage](#usage)
-    * [Options](#options)
-    * [Environment Variables](#environment-variables)
-  * [Feedback](#feedback)
-  * [License](#license)
+- [Pact graph network](#pact-graph-network)
+  - [Broker APIs](#broker-apis)
+- [Table of contents](#table-of-contents)
+  - [Screenshots](#screenshots)
+  - [Tech Stack](#tech-stack)
+  - [Features](#features)
+  - [How to install](#how-to-install)
+  - [Usage](#usage)
+    - [Basic Auth](#basic-auth)
+    - [Bearer Auth](#bearer-auth)
+  - [Environment Variables](#environment-variables)
+    - [Options](#options)
+    - [Environment Variables](#environment-variables-1)
+  - [Feedback](#feedback)
+  - [License](#license)
 
 ## Screenshots
 
@@ -55,7 +58,7 @@ This project is created with:
 - [x] generate a force directed layout chart
 - [x] exclude sevices with pattern
 - [ ] filter only services
-- [ ] add support fort Pact Broker authentification
+- [X] add support fort Pact Broker authentification (Basic Auth + Bearer Based)
 
 ## How to install
 
@@ -71,22 +74,46 @@ chmod u+x $HOME/.local/bin/pact-graph-network
 
 ## Usage
 
+Generate the graph
+
 ~~~bash
   pact-graph-network \
   --url https://pact-brocker.your.com/ \
   --output report
 ~~~
 
+View the output in your browser
+
+~~~bash
+  open report/edge-bundling.html
+~~~
+
+### Basic Auth
+
+~~~bash
+  pact-graph-network --url https://pact-brocker.your.com/ --output report --username $PACT_BROKER_USERNAME --password $PACT_BROKER_PASSWORD
+~~~
+
+### Bearer Auth
+
+~~~bash
+  pact-graph-network --url https://pact-brocker.your.com/ --output report --token $PACT_BROKER_TOKEN
+~~~
+
+## Environment Variables
 ### Options 
 
 ```
--u, --url <URL>          Pact broker URL
--o, --output <OUTPUT>    Path of the output dir [default: report]
--g, --graph <GRAPH>      [default: edge] [possible values: edge, directed]
-    --timeout <TIMEOUT>  timeout of http request in milliseconds [default: 2000]
-    --exclude <EXCLUDE>  list of service to exclude
--h, --help               Print help information
--V, --version            Print version information
+-b, --url <URL>            Pact broker URL
+-u, --username <USERNAME>  Pact broker username
+-p, --password <PASSWORD>  Pact broker password
+-t, --token <TOKEN>        Pact broker token
+-o, --output <OUTPUT>      Path of the output dir [default: report]
+-g, --graph <GRAPH>        [default: edge] [possible values: edge, directed]
+    --timeout <TIMEOUT>    timeout of http request in milliseconds [default: 2000]
+    --exclude <EXCLUDE>    list of service to exclude
+-h, --help                 Print help information
+-V, --version              Print version information
 ```
 
 ### Environment Variables

@@ -36,8 +36,17 @@ pub enum GraphChoice {
 )]
 pub struct Cli {
     /// Pact broker URL
-    #[arg(short, long)]
+    #[arg(short = 'b', long)]
     pub url: String,
+    /// Pact broker username
+    #[arg(short, long)]
+    pub username: Option<String>,
+    /// Pact broker password
+    #[arg(short, long)]
+    pub password: Option<String>,
+    /// Pact broker token
+    #[arg(short, long)]
+    pub token: Option<String>,
     /// Path of the output dir
     #[arg(short, long, default_value = "report")]
     pub output: String,
