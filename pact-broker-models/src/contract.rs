@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Contract {
     pub consumer: Pacticant,
     pub interactions: Option<Vec<Interaction>>,
-    pub metadata: Metadata,
+    pub metadata: Option<Metadata>,
     pub provider: Pacticant,
     #[serde(rename = "createdAt")]
     pub created_at: String,
@@ -21,7 +21,7 @@ pub struct Pacticant {
 pub struct Interaction {
     #[serde(rename = "_id")]
     pub id: String,
-    pub description: String,
+    pub description: Option<String>,
     #[serde(rename = "providerStates")]
     pub provider_states: Option<Vec<State>>,
     pub request: Request,

@@ -42,7 +42,7 @@ This project is created with:
 - [x] generate a force directed layout chart
 - [x] exclude sevices with pattern
 - [ ] filter only services
-- [ ] add support fort Pact Broker authentification
+- [X] add support fort Pact Broker authentification (Basic Auth + Bearer Based)
 
 ## How to install
 
@@ -63,10 +63,28 @@ pact-graph-network \
 
 ## Usage
 
-
+Generate the graph
 
 ~~~bash
   pact-graph-network --url https://pact-brocker.your.com/ --output report
+~~~
+
+View the output in your browser
+
+~~~bash
+  open report/edge-bundling.html
+~~~
+
+### Basic Auth
+
+~~~bash
+  pact-graph-network --url https://pact-brocker.your.com/ --output report --username $PACT_BROKER_USERNAME --password $PACT_BROKER_PASSWORD
+~~~
+
+### Bearer Auth
+
+~~~bash
+  pact-graph-network --url https://pact-brocker.your.com/ --output report --username $PACT_BROKER_TOKEN
 ~~~
 
 ## Environment Variables
