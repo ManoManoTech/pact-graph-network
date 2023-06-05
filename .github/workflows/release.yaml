@@ -34,36 +34,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Rust Toolchain Components
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
           toolchain: stable
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - name: check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo check
   lints:
     name: "💅 lints"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Install Rust Toolchain Components
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
           toolchain: stable
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - name: Clippy
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all --all-targets -- -D warnings
+        run: cargo clippy --all --all-targets -- -D warnings
       - name: Format
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check
   tests:
     name: "⚙️ Run unit-tests"
     strategy:
@@ -74,22 +66,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install Rust Toolchain Components
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
-          override: true
           toolchain: stable
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: "--all"
+        run: cargo test --all
       - name: Show help
-        uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: "-- -h"
+        run: cargo run -- -h
   changelog:
     if: needs.version.outputs.hasNextVersion == 'true'
     needs:
@@ -107,7 +92,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - run: git tag "v${{needs.version.outputs.version}}"
       - name: Generate a changelog
-        uses: orhun/git-cliff-action@v1
+        uses: orhun/git-cliff-action@v2
         id: git-cliff
         with:
           config: cliff.toml
@@ -117,7 +102,7 @@ jobs:
       - name: Print the changelog
         run: echo "${{ steps.git-cliff.outputs.content }}"
       - name: Generate a changelog
-        uses: orhun/git-cliff-action@v1
+        uses: orhun/git-cliff-action@v2
         id: git-cliff-changes
         with:
           config: cliff.toml
@@ -129,17 +114,49 @@ jobs:
   build:
     name: "🛠️ Build binaries"
     if: needs.version.outputs.hasNextVersion == 'true'
+    defaults:
+      run:
+        shell: bash
     needs:
       - version
       - tests
       - lints
       - check
     strategy:
+      fail-fast: false
       matrix:
         job:
           - { target: x86_64-apple-darwin      , suffix: ""  , os: macos-latest                   }
+          - { target: aarch64-apple-darwin      , suffix: ""  , os: macos-latest                   }
           - { target: x86_64-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
           - { target: x86_64-unknown-linux-musl , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-unknown-linux-musl , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-unknown-linux-musleabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-unknown-linux-musleabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: i586-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: i686-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-netbsd , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-freebsd , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv5te-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv5te-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: i686-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: thumbv7neon-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: thumbv7neon-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-pc-windows-msvc , suffix: ""    , os: windows-latest }
+          - { target: aarch64-pc-windows-msvc , suffix: ""    , os: windows-latest }
+          - { target: i686-pc-windows-msvc , suffix: ""    , os: windows-latest }
+          - { target: x86_64-pc-windows-gnu , suffix: ""    , os: windows-latest }
     runs-on: ${{matrix.job.os}}
     steps:
     - uses: actions/checkout@v3
@@ -154,25 +171,29 @@ jobs:
         echo "REPOSITORY_NAME=${REPOSITORY_NAME}" >> $GITHUB_OUTPUT
       shell: bash
     - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
-        profile: minimal
         target: ${{ matrix.job.target }}
         toolchain: stable
-        override: true
-    - uses: Swatinem/rust-cache@v1
-    - uses: actions-rs/install@v0.1
-      with:
-        crate: cargo-bump
-        version: latest
+    - uses: Swatinem/rust-cache@v2
+    - run: cargo install cargo-release
     - name: "Bump version into cargo.toml"
-      run: cargo bump ${{ needs.version.outputs.version }}
+      run: cargo-release release version ${{ needs.version.outputs.version }}
     - name: Build
-      uses: actions-rs/cargo@v1
-      with:
-        use-cross: ${{ matrix.job.use-cross }}
-        command: build
-        args: --bin pact-graph-network${{ matrix.job.suffix }} --release --target=${{ matrix.job.target }}
+      if: ${{ matrix.job.use-cross != true }}
+      run: | # https://github.com/rust-lang/rustup/issues/2612#issuecomment-1433876793
+        if [[ ${{ matrix.job.target }} == "aarch64-pc-windows-msvc" ]]; then
+          echo "ring override for aarch64-pc-windows-msvc"
+          echo [patch.crates-io] >> cargo.toml
+          echo ring = { git = \"https://github.com/awakecoding/ring\", branch = \"0.16.20_alpha\" } >> cargo.toml
+          cargo update
+        fi
+        cargo build --bin pact-graph-network${{ matrix.job.suffix }} --release --target=${{ matrix.job.target }}
+    - name: Build
+      if: ${{ matrix.job.use-cross == true }}
+      run: | # Install latest cross for android targets
+        cargo install cross --git https://github.com/cross-rs/cross
+        cross build --bin pact-graph-network${{ matrix.job.suffix }} --release --target=${{ matrix.job.target }}
     - name: Create dist
       id: dist
       shell: bash
@@ -212,24 +233,103 @@ jobs:
         shell: bash
       - uses: actions/download-artifact@master
         with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-apple-darwin      
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-aarch64-apple-darwin      
+      - uses: actions/download-artifact@master
+        with:
           name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-unknown-linux-gnu
       - uses: actions/download-artifact@master
         with:
-          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-apple-darwin
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-unknown-linux-musl
       - uses: actions/download-artifact@master
         with:
-          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-unknown-linux-musl
-      - uses: Swatinem/rust-cache@v1
-      - uses: actions-rs/install@v0.1
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-aarch64-unknown-linux-gnu
+      - uses: actions/download-artifact@master
         with:
-          crate: cargo-bump
-          version: latest
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-aarch64-unknown-linux-musl
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-arm-unknown-linux-gnueabi
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-arm-unknown-linux-gnueabihf
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-arm-unknown-linux-musleabi
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-arm-unknown-linux-musleabihf
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-armv7-unknown-linux-gnueabi
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-armv7-unknown-linux-gnueabihf
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-armv7-unknown-linux-musleabi
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-armv7-unknown-linux-musleabihf
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-i586-unknown-linux-gnu
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-i686-unknown-linux-gnu
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-unknown-netbsd 
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-unknown-freebsd 
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-armv5te-unknown-linux-gnueabi
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-armv5te-unknown-linux-musleabi
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-arm-linux-androideabi 
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-armv7-linux-androideabi 
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-aarch64-linux-android 
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-i686-linux-android 
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-linux-android 
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-thumbv7neon-linux-androideabi 
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-thumbv7neon-unknown-linux-gnueabihf
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-pc-windows-msvc
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-aarch64-pc-windows-msvc
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-i686-pc-windows-msvc
+      - uses: actions/download-artifact@master
+        with:
+          name: ${{ steps.get_repository_name.outputs.REPOSITORY_NAME }}-x86_64-pc-windows-gnu
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo install cargo-release
       - name: "Bump version into cargo.toml"
-        run: cargo bump ${{ needs.version.outputs.version }}
+        run: cargo-release release version ${{ needs.version.outputs.version }}
       - name: check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo check
       - name: "Write changelog"
         run: echo "${{ needs.changelog.outputs.content }}" > CHANGELOG.md
       - uses: stefanzweifel/git-auto-commit-action@v4
@@ -238,7 +338,7 @@ jobs:
           branch: ${{ github.head_ref }}
           file_pattern: 'Cargo.* CHANGELOG.md'
       - name: Publish archives and packages
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@master
         with:
           tag_name: 'v${{ needs.version.outputs.version }}'
           name: 'Release v${{ needs.version.outputs.version }}'
