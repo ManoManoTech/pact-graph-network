@@ -5,21 +5,34 @@
 [![rust](https://img.shields.io/badge/rust-FA7343?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 
 
-A command line to generate dependency patterns between microservices using pact-broker data.
+> A command line to generate dependency patterns between microservices using pact-broker data.
 
 Available for linux, alpine and OSX.
+
+## Broker APIs
+
+1. First, request `$PACT_BROKER_URL/pacts/latest` to get the list of all contracts (e.g. `pacts`) ;
+2. then, for each contract object get the URL to latest version of contract, _e.g._ `_links._self[0].href` 
+
+    > http://$PACT_BROKER_URL/pacts/provider/foo-provide/consumer/bar-consume/latest
+
+3. and use it to fetch contract details, i.e. all interactions ;
 
 
 # Table of contents
 
-- [Screenshots](#screenshots)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
-- [How to install](#how-to-install)
-- [Usage](#usage)
-- [Environment Variables](#environment-variables)
-- [Feedback](#feedback)
-- [License](#license)
+* [Pact graph network](#pact-graph-network)
+  * [Broker APIs](#broker-apis)
+* [Table of contents](#table-of-contents)
+  * [Screenshots](#screenshots)
+  * [Tech Stack](#tech-stack)
+  * [Features](#features)
+  * [How to install](#how-to-install)
+  * [Usage](#usage)
+    * [Options](#options)
+    * [Environment Variables](#environment-variables)
+  * [Feedback](#feedback)
+  * [License](#license)
 
 ## Screenshots
 
@@ -48,17 +61,12 @@ This project is created with:
 
 ```bash
 # Download the binary
-VERSION=0.6.0
-curl -L -o /usr/local/bin/pact-graph-network \
+VERSION=0.7.2
+curl -L -o $HOME/.local/bin/pact-graph-network \
   https://github.com/ManoManoTech/pact-graph-network/releases/download/v${VERSION}/pact-graph-network_x86_64-unknown-linux-gnu
 
 # Make it executable
-chmod a+x /usr/local/bin/pact-graph-network
-
-# And run it
-pact-graph-network \
-  --url http://your.pact.broker \
-  --output ./report
+chmod u+x $HOME/.local/bin/pact-graph-network
 ```
 
 ## Usage
@@ -66,7 +74,9 @@ pact-graph-network \
 Generate the graph
 
 ~~~bash
-  pact-graph-network --url https://pact-brocker.your.com/ --output report
+  pact-graph-network \
+  --url https://pact-brocker.your.com/ \
+  --output report
 ~~~
 
 View the output in your browser
@@ -87,12 +97,27 @@ View the output in your browser
   pact-graph-network --url https://pact-brocker.your.com/ --output report --username $PACT_BROKER_TOKEN
 ~~~
 
-## Environment Variables
+### Options 
 
-| Key                        | Description                                   | Alowed values               |
-| -------------------------- | --------------------------------------------- | --------------------------- |
-| **PACT_NETWORK_LOG**       | Adds filters to the logger.                   | error,warn,info,debug,trace |
-| **PACT_NETWORK_LOG_STYLE** | Whether or not to print styles to the target. | auto, always, never         |
+```
+-b, --url <URL>            Pact broker URL
+-u, --username <USERNAME>  Pact broker username
+-p, --password <PASSWORD>  Pact broker password
+-t, --token <TOKEN>        Pact broker token
+-o, --output <OUTPUT>      Path of the output dir [default: report]
+-g, --graph <GRAPH>        [default: edge] [possible values: edge, directed]
+    --timeout <TIMEOUT>    timeout of http request in milliseconds [default: 2000]
+    --exclude <EXCLUDE>    list of service to exclude
+-h, --help                 Print help information
+-V, --version              Print version information
+```
+
+### Environment Variables
+
+| Key                          | Description                                   | Alowed values                         |
+| ---------------------------- | --------------------------------------------- | ------------------------------------- |
+| **`PACT_NETWORK_LOG`**       | Adds filters to the logger.                   | `error`,`warn`,`info`,`debug`,`trace` |
+| **`PACT_NETWORK_LOG_STYLE`** | Whether or not to print styles to the target. | `auto`, `always`, `never`             |
 
 
 ## Feedback
