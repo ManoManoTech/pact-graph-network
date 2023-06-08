@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2023-06-08
+
+### Documentation
+
+- Bump version to 0.7.2
+- Remove duplicate usage snippet
+- Add options section (output of --help)
+- Format Environment Variables and nest under Usage
+- Add _Broker APIs_ section
+
+### Features
+
+- Use Cross to build binaries for all available targets
+
+### Miscellaneous Tasks
+
+- .gitignore .DS_Store for mac contributors
+
+### Refactor
+
+- Separates brocker cli in specific lib
+- Save binary to runner directory /home/runner/.local/bin
+
+### Build
+
+- Bump h2 from 0.3.15 to 0.3.17
+
 ## [0.7.2] - 2022-12-14
 
 ### Bug Fixes
